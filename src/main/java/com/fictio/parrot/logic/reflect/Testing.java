@@ -1,11 +1,17 @@
 package com.fictio.parrot.logic.reflect;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 
@@ -70,6 +76,8 @@ public class Testing {
     
     /**
      * <li> class.forName()使用
+     * <li> 基本类型不支持forName()的使用
+     * <li> Java9: forName(Module module, String name)
      */
     @Test
     public void forNameTest() {
@@ -177,6 +185,87 @@ public class Testing {
             e.printStackTrace();
             log.error("{} Constructor.newInstance({},{},{}) failed",csts,"小王",20,true);
         }
+    }
+    
+    @Test
+    public void classCheckTest() {
+        //Arrays.asList()得到的是一个特殊的ArrayList,java.util.Arrays.ArrayList
+        List<String> list = Arrays.asList("1");
+        log.info("Arrays.asList is {}",list.getClass().getCanonicalName());
+        //new ArrayList<>()是普通的,java.util.ArrayList
+        list = new ArrayList<>();
+        log.info("Arrays.asList is {}",list.getClass().getCanonicalName());
+        if(list instanceof ArrayList) log.info("list instanceof ArrayList is right!");
+        Class<?> cls = null;
+        try {
+            cls = Class.forName("java.util.ArrayList");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        if(cls == null) return;
+        if(cls.isInstance(list)) log.info("Class<ArrayList>.isInstance is list is right!");
         
+        Coder coder = new Coder();
+        coder.setName("王二");
+        Person p = toType(coder, Person.class);
+        log.info("{} Dynamic cast to {} !",coder,p);
+    }
+    
+    @Test
+    public void classJudgeTest() {
+        List<String> list = Arrays.asList("1");
+        Class<?> cls = list.getClass();
+        //是否是数组
+        log.info("cls is Array {}",cls.isArray());
+        //是否是基本类型
+        log.info("cls is Primitive {}",cls.isPrimitive());
+        //是否是接口
+        log.info("cls is Interface {}",cls.isInterface());
+        //是否是枚举
+        log.info("cls is Enum {}",cls.isEnum());
+        //是否是注解
+        log.info("cls is Annotation {}",cls.isAnnotation());
+        //是否是匿名内部类
+        log.info("cls is AnonymousClass {}",cls.isAnonymousClass());
+        //是否是成员类;
+        log.info("cls is MemberClass {}",cls.isMemberClass());
+        //是否是本地类;本地类定义在方法内,不是匿名类
+        log.info("cls is LocalClass {}",cls.isLocalClass());
+    }
+    
+    /**
+     * java.lang.reflect.Array
+     * <li> 数组的反射
+     * 
+     */
+    @Test
+    public void arrayTest() {
+        String[] arr = new String[] {};
+        log.info("String[] componentType: {}",arr.getClass().getComponentType());
+        
+        arr = (String[]) Array.newInstance(String.class, 10);
+        arr[0] = "test";
+        log.info("Arr[0] = {}",arr[0]);
+        
+        String[][] twoDimArr = (String[][]) Array.newInstance(String.class, 2, 10);
+        twoDimArr[0][0] = "test";
+        log.info("Arr[0][0] = {}",twoDimArr[0][0]);
+        Array.set(arr, 1, "java.lang.reflect.Array.set()");
+        log.info("Array.get(1) = {}",(String) Array.get(arr, 1));
+        log.info("Array.getLength = {}",Array.getLength(arr));
+    }
+    
+    /**
+     * <li> 枚举
+     */
+    @Test
+    public void enumTest() {
+        Size[] es = Size.class.getEnumConstants();
+        log.info("Enum.Class.getEnumConstants: {}",
+            Stream.of(es).map(e->e.toString()).collect(Collectors.toList()));
+    }
+    
+    private <T> T toType(Object obj, Class<T> cls) { 
+        return cls.cast(obj);
     }
 }
