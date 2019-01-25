@@ -1,0 +1,21 @@
+# eclipse and maven
+**/target/
+**/.settings
+**/.classpath
+**/.project
+**/.mvn
+**/mvnw
+**/mvnw.cmd
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+# project self
+**/application-loc.yml
+logs/
+**/generator.xml
+
+
