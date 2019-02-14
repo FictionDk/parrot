@@ -105,5 +105,20 @@ Constructor.newInstance(Object... initargs);
  - `@Documented`: 表示注解信息包含到生成的文档中
  - `@Inherited`: 表示该注解可以将父类的该注解信息被子类继承
 
+### proxy: 23章- 代理
 
-
+0. 代理设计模式存在的价值
+    - 按需延迟加载,需要时再加载或创建;
+    - 执行权限检查后,再调用实际对象;
+    - 屏蔽网络的差异和复杂性;
+1. 静态代理
+    - 代理类写程序时固定的
+2. SDK动态代理
+    - 实现`InvocationHandler`接口,动态代理方法
+    - 使用`java.lang.reflect.Proxy.newProxyInstance(...)`创建代理对象
+3. cglib动态代理
+    - 使用前引用第三方库`cglib`
+    - 与SDK实现机制不同,动态创建一个类(其父类时被代理的类),该代理类重写父类所有public非final方法,改为调用Callback的相关方法
+4. sdk/cglib
+    - sdk是实现一组接口,然后动态创建实现类,具体实现逻辑再通过自定义的InvocationHandler引用实现类;
+    - cglib是动态创建一个新类,继承该类并重新方法;
