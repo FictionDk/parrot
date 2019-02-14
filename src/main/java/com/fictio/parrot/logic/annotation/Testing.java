@@ -90,11 +90,39 @@ public class Testing {
         System.out.println(Child.class.isAnnotationPresent(InheritDemo.class));
     }
     
+    /**
+     * 使用注解格式化对象
+     * 
+     * @throws ParseException
+     */
     @Test
     public void formatDemo() throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Student zhangsan = new Student("张三",sdf.parse("1990-12-12"),80.0);
         System.out.println(SimpleFormatter.format(zhangsan));
+    }
+    
+    static class SerivceB {
+        void action() {
+            System.out.println("get B start !");
+        }
+    }
+    
+    static class ServiceA {
+        @SimpleInject
+        SerivceB b;
+        public void callB() {
+            b.action();
+        }
+    }
+
+    /**
+     * 使用SimpleContainer获取ServiceA对象,同时注入SerivceB对象
+     */
+    @Test
+    public void diDemo() {
+        ServiceA a = SimpleContainer.getInstance(ServiceA.class);
+        a.callB();
     }
     
 }
