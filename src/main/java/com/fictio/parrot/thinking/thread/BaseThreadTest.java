@@ -3,10 +3,10 @@ package com.fictio.parrot.thinking.thread;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -34,6 +34,7 @@ class LiftOff implements Runnable {
 	public void run() {
 		while(countDown-- > 0) {
 			log.info("status :{}",status());
+			//让步.暗示(但并不保证会被采纳)jvm可以让别的线程使用cpu
 			Thread.yield();
 		}
 	}
@@ -47,6 +48,20 @@ class TaskWithResult implements Callable<String> {
 	@Override
 	public String call() throws Exception {
 		return "result of TaskWithResult "+id;
+	}
+}
+
+@Slf4j
+class SleepingTask extends LiftOff {
+	public void run() {
+		try {
+			while(countDown-- > 0) {
+				log.info("status :{}",status());
+				TimeUnit.MILLISECONDS.sleep(100);
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }
 
@@ -76,7 +91,7 @@ public class BaseThreadTest {
 	}
 	
 	// 确保测试完成前所有线程都能结束
-	private void confireWatingForEnd() {
+	public void confireWatingForEnd() {
 		log.info("waiting for liftoff");
 		try {
 			Thread.sleep(2000);
@@ -125,11 +140,26 @@ public class BaseThreadTest {
 				log.info("fs.get():{}",result.get());
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-			} catch (ExecutionException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
 				exec.shutdown();
 			}
 		}
+	}
+	
+	@Test
+	public void sleepTest() {
+		ExecutorService exec = Executors.newCachedThreadPool();
+		for(int i = 0; i < 5; i++) {
+			exec.execute(new SleepingTask());
+		}
+		exec.shutdown();
+		confireWatingForEnd();
+	}
+	
+	// 后台守护进程Thread.setDaemon(true)
+	@Test
+	public void daemonTest() {
 	}
 }
