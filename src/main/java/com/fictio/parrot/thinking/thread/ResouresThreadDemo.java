@@ -3,6 +3,8 @@ package com.fictio.parrot.thinking.thread;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.junit.Test;
 
@@ -75,6 +77,7 @@ class EvenChecker implements Runnable {
  *   - 如果一个变量接下来将被另外一个线程读取,或者正在读取一个上一次已经被另一个线程写过的变量,则
  *    必须使用同步,且读写线程用相同的监视器锁同步
  */
+@Slf4j
 public class ResouresThreadDemo {
 	
 	private void mainThreadSleep(long seconds) {
@@ -116,5 +119,96 @@ public class ResouresThreadDemo {
 		mainThreadSleep(10);
 	}
 	
+	/**
+	 * 使用synchronized关键字确保
+	 */
+	private class SyncEvenGenerator extends IntGenerator {
+		private int currentEvenValue = 0;
+		public synchronized int next() {
+			++currentEvenValue;
+			Thread.yield();
+			++currentEvenValue;
+			return currentEvenValue;			
+		}
+	}
+	
+	@Test
+	public void syncEvenGeneratorTest() {
+		EvenChecker.test(new SyncEvenGenerator());
+		mainThreadSleep(10);		
+	}
+	
+	/**
+	 * 使用: ReentrantLock
+	 * 相对于synchronized关键字(失败抛出异常,无法清理/善后或者说是状态回滚)
+	 */
+	private class MutexEvenGenerator extends IntGenerator {
+		private int currentEvenValue = 0;
+		private Lock lock = new ReentrantLock();
+		public int next() {
+			lock.lock();
+			try {
+				++currentEvenValue;
+				Thread.yield();
+				++currentEvenValue;
+				return currentEvenValue;
+			} finally {
+				lock.unlock();
+			}
+		}
+	}
+	
+	@Test
+	public void mutexEvenGeneratorTest() {
+		EvenChecker.test(new MutexEvenGenerator());
+		mainThreadSleep(10);		
+	}
+	
+	private class AttemptLocking {
+		private ReentrantLock lock = new ReentrantLock();
+		public void untimed() {
+			boolean captured = lock.tryLock();
+			try {
+				log.info("tryLock(): {}",captured);
+			}finally {
+				if(captured) lock.unlock();
+			}
+		}
+		public void timed() {
+			boolean captured = false;
+			try {
+				captured = lock.tryLock(2, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+			try {
+				log.info("trylock(2,TimeUnit.SECONDS): {}",captured);
+			}finally {
+				if(captured) lock.unlock();
+			}
+		}
+	}
+	
+	@Test
+	public void attempLocakTest() {
+		final AttemptLocking al = new AttemptLocking();
+		al.untimed();
+		al.timed();
+		
+		new Thread() {
+			{setDaemon(true);}
+			public void run() {
+				al.lock.lock();
+				log.info("acquired");
+			}
+		}.start();
+		
+		Thread.yield();
+		
+		al.untimed();
+		al.timed();
+		
+		mainThreadSleep(1);
+	}
 
 }
