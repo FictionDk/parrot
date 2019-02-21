@@ -3,6 +3,7 @@ package com.fictio.parrot.thinking.thread;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -50,6 +51,75 @@ class EvenChecker implements Runnable {
 		test(gp,10);
 	}
 }
+
+// 生产序列化整数
+class SerialNumberGenerator {
+	// 确保一个线程写操作后(立即写入主存中),其他线程域的读操作都看到这个修改
+	private static volatile int serialNumber = 0;
+	public static int nextSerialNumber() {
+		// 非原子操作,且未加锁,线程不安全
+		return serialNumber++;
+	}
+}
+
+// 有限数组集合
+class CircularSet {
+	private int[] arr;
+	private int len;
+	private int index;
+	public CircularSet(int size) {
+		arr = new int[size];
+		len = size;
+		for(int i = 0; i < size; i++) {
+			arr[i] = -1;
+		}
+	}
+	public synchronized void add(int i) {
+		arr[index] = i;
+		// Wrap index and write over old ele
+		index = ++index % len;
+	}
+	public synchronized boolean contains(int val) {
+		for(int i = 0; i < len; i++)
+			if(arr[i] ==  val) return true;
+		return false;
+	}
+}
+
+@Slf4j
+class SerialNumberChecker {
+	private static final int SIZE = 10;
+	private static CircularSet serials = new CircularSet(1000);
+	
+	private static ExecutorService exec = Executors.newCachedThreadPool();
+	
+	/**
+	 * <p>1)采用多个线程使用SerialNumberGenerator生成序列化整数
+	 * <p>2)多个线程同时往数据集CircularSet.arr中插入数据
+	 * <p>3)检查数据,如果发现重复,程序退出运行
+	 * <p>4)如果重复,证明即使使用volatile关键字,serialNumber++操作不安全
+	 */
+	static class SerialCheaker implements Runnable {
+		public void run() {
+			while(true) {
+				int serial = SerialNumberGenerator.nextSerialNumber();
+				if(serials.contains(serial)) {
+					log.info("Duplicate : {}",serial);
+					System.exit(0);
+				}
+				serials.add(serial);
+			}
+		}
+	}
+	
+	public static void serialNumberTest() {
+		for(int i = 0; i < SIZE; i++) {
+			exec.execute(new SerialCheaker());
+		}
+	}
+	
+}
+
 
 /**
  * 并发资源访问Demo
@@ -165,9 +235,11 @@ public class ResouresThreadDemo {
 	}
 	
 	private class AttemptLocking {
+		// 允许尝试获取锁但最终未获取锁
 		private ReentrantLock lock = new ReentrantLock();
 		public void untimed() {
 			boolean captured = lock.tryLock();
+			// 如果拿到了锁打印日志
 			try {
 				log.info("tryLock(): {}",captured);
 			}finally {
@@ -190,7 +262,7 @@ public class ResouresThreadDemo {
 	}
 	
 	@Test
-	public void attempLocakTest() {
+	public void attempLockTest() {
 		final AttemptLocking al = new AttemptLocking();
 		al.untimed();
 		al.timed();
@@ -209,6 +281,30 @@ public class ResouresThreadDemo {
 		al.timed();
 		
 		mainThreadSleep(1);
+	}
+	
+	@Test
+	public void serialNumberTest() {
+		SerialNumberChecker.serialNumberTest();
+		mainThreadSleep(10);
+		log.info("No duplicate detecet");
+	}
+	
+	/**
+	 * <p> 使用特殊原子性变量类,提供原子性条件更新
+	 *
+	 */
+	private class AtomicEvenGenerator extends IntGenerator {
+		private AtomicInteger currentEvenValue = new AtomicInteger(0);
+		public int next() {
+			return currentEvenValue.addAndGet(2);
+		}
+	}
+	
+	@Test
+	public void atomicEvenGenratorTest() {
+		EvenChecker.test(new AtomicEvenGenerator());
+		mainThreadSleep(2);
 	}
 
 }
