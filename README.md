@@ -122,3 +122,12 @@ Constructor.newInstance(Object... initargs);
 4. sdk/cglib
     - sdk是实现一组接口,然后动态创建实现类,具体实现逻辑再通过自定义的InvocationHandler引用实现类;
     - cglib是动态创建一个新类,继承该类并重新方法;
+
+    
+## thinking
+> 书名: Thinking in Java
+
+### thread: - 线程,并发
+
+    
+    
