@@ -150,7 +150,7 @@ class SerialNumberChecker {
 @Slf4j
 public class ResouresThreadDemo {
 	
-	private void mainThreadSleep(long seconds) {
+	public void mainThreadSleep(long seconds) {
 		try {
 			if(seconds == 0)
 				TimeUnit.MILLISECONDS.sleep(8);
@@ -306,5 +306,7 @@ public class ResouresThreadDemo {
 		EvenChecker.test(new AtomicEvenGenerator());
 		mainThreadSleep(2);
 	}
+	
+	
 
 }
