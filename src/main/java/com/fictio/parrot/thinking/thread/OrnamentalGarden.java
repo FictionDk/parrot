@@ -29,7 +29,9 @@ class Entrance implements Runnable {
 	// 线程本地number
 	private int number = 0;
 	private final int id;
+	// 原子变量
 	private static volatile boolean canceled = false;
+	// 原子操作
 	public static void cancel() {canceled = true;}
 	public Entrance (int id) { 
 		this.id = id;
