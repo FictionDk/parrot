@@ -64,7 +64,10 @@ class Entrance implements Runnable {
 	}
 }
 
-
+/**
+ * <p>线程本地变量和公共变量的同步
+ *
+ */
 public class OrnamentalGarden {
 
 	public static void sleep(int mills) {
