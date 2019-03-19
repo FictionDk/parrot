@@ -6,6 +6,7 @@ import java.io.PipedWriter;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
@@ -81,6 +82,7 @@ class Reciver implements Runnable {
  * 
  *
  */
+@Slf4j
 public class PipedIO {
 
 	@Test
@@ -106,5 +108,38 @@ public class PipedIO {
 		OrnamentalGarden.sleep(4000);
 		exec.shutdownNow();
 	}
+	
+	@SuppressWarnings("serial")
+	private class CharQueue extends LinkedBlockingQueue<Character> {}
+	
+	/**
+	 * <p>使用BlockingQueue+java8内部类重新实现
+	 * 
+	 */
+	@Test
+	public void queueTest() {
+		CharQueue queue = new CharQueue();
+		ExecutorService exec = Executors.newCachedThreadPool();
+		
+		exec.execute(()->{
+			for(char c = 'a'; c < 'z'; c++) {
+				queue.add(c);
+			}
+		});
+		
+		exec.execute(()->{
+			while(!Thread.interrupted()) {
+				try {
+					log.info("Queue Get: {}",queue.take());
+				} catch (InterruptedException e) {
+					log.error("queue get interruption, {}",e.toString());
+				}
+			}
+		});
+		
+		OrnamentalGarden.sleep(4000);
+		exec.shutdownNow();
+	}
+	
 	
 }
