@@ -95,6 +95,12 @@ class HorseRace {
 	}
 }
 
+/**
+ * CyclicBarrier 循环的屏障
+ * 
+ * @author dk
+ *
+ */
 public class HorseRaceDemo {
 
 	@Test
