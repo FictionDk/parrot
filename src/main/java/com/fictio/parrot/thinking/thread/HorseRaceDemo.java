@@ -41,7 +41,7 @@ class Horse implements Runnable {
 			new RuntimeException(e);
 		}
 	}
-	// 每匹马没回合移动一次
+	// 每匹马每回合移动一次
 	public String tracks() {
 		StringBuffer s = new StringBuffer();
 		for(int i = 0; i < getStrides(); i++) {
