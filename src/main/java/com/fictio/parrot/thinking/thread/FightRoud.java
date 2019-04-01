@@ -1,7 +1,6 @@
 package com.fictio.parrot.thinking.thread;
 
 import java.util.Random;
-import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -59,7 +58,7 @@ class Fighter implements Runnable{
 		else return false;
 	}
 	
-	public synchronized void attack() throws InterruptedException, BrokenBarrierException {
+	public synchronized void attack() {
 		log.info("{} --> {} starting ...",this,matcher);
 		int actualAttack = rand.nextInt(10)+attack;
 		this.matcher.blood = this.matcher.blood - actualAttack;
