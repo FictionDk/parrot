@@ -12,10 +12,14 @@ import org.junit.Test;
 
 import lombok.extern.slf4j.Slf4j;
 
+@SuppressWarnings("serial")
+class MatcherQueue extends LinkedBlockingQueue<Fighter>{};
+
 @Slf4j
 class Fighter implements Runnable{
+	
 	private enum FighterStatus {
-		SURVIVE,DEAD;
+		SURVIVE,DOWN;
 	}
 	private String name;
 	private FighterStatus status;
@@ -25,6 +29,7 @@ class Fighter implements Runnable{
 	private int speed;
 	private int blood;
 	private Fighter matcher;
+	private MatcherQueue matchers;
 	
 	private ReentrantLock attackLock;
 
@@ -59,8 +64,13 @@ class Fighter implements Runnable{
 		return this.name;
 	}
 	
-	public void setMatcher(Fighter matcher) {
-		this.matcher = matcher;
+	public void setMatchers(MatcherQueue matchers) {
+		this.matchers = matchers;
+	}
+	
+	public void addMatcher(Fighter matcher) {
+		if(this.matchers == null) this.matchers = new MatcherQueue();
+		this.matchers.add(matcher);
 	}
 	
 	public void setBarrier(CyclicBarrier barrier) {
@@ -75,8 +85,25 @@ class Fighter implements Runnable{
 		this.queue = queue;
 	}
 	
+	/**
+	 * <p>遭受攻击
+	 * 
+	 * @param actualAttack
+	 * @return boolean 如果倒地,返回true,否则false
+	 */
+	private boolean getHurt(int actualAttack) {
+		this.blood -= actualAttack;
+		if(this.blood <= 0 ) {
+			this.status = FighterStatus.DOWN;
+			log.info("{} 被击倒在地,爬不起来 ",getName());
+			return true;
+		}
+		return false;
+	}
+	
 	public void run() {
 		try {
+			if(this.matcher == null) this.matcher = this.matchers.take();
 			while(!isEnd()) {
 				attack();
 				TimeUnit.MILLISECONDS.sleep(10*speed);
@@ -84,33 +111,33 @@ class Fighter implements Runnable{
 			}
 		} catch (Exception e) {
 			log.error("Thread Interrupted! {}",e.toString());
+			e.printStackTrace();
 		}
 	}
 	
 	public synchronized boolean isEnd() {
-		if(Thread.interrupted() || FighterStatus.DEAD.equals(this.status)
-				|| FighterStatus.DEAD.equals(this.matcher.status)) return true;
+		if(Thread.interrupted() || FighterStatus.DOWN.equals(this.status) || this.matcher == null
+				|| FighterStatus.DOWN.equals(this.matcher.status)) return true;
 		else return false;
 	}
 	
 	public void attack() {
-		if(isEnd()) return;
+		EventLog eventLog = null;
+		if(isEnd()) {return;}
 		
 		this.attackLock.lock();
-		EventLog eventLog = null;
 		try {
-			log.info("{} 挥拳打向 {} ",this.name,matcher.name);
+			log.info("{} 挥拳打向 {} ",this.name,matcher.getName());
 			int actualAttack = this.getAttack() - matcher.getDefend();
 			eventLog = new EventLog(this.name+" 捶 "+matcher.name, this, this.matcher, actualAttack);
 			if(actualAttack > 0) {
-				this.matcher.blood = this.matcher.blood - actualAttack;
 				log.info("{} 被击中, 受到 [{}] 点伤害" ,matcher.name,actualAttack);
+				if(this.matcher.getHurt(actualAttack)) {
+					this.matcher = this.matchers.poll();
+				}
+					
 			}else {
 				log.info("{} 躲过了 {} 的攻击",this.matcher.name,this.name);
-			}
-			if(this.matcher.blood <= 0 ) {
-				this.matcher.status = FighterStatus.DEAD;
-				log.info("{} 被击倒在地,爬不起来 ",matcher.name);
 			}
 			this.queue.add(eventLog);
 		}finally {
@@ -163,37 +190,42 @@ public class FightRoud {
 	public void test() {
 		ReentrantLock lock = new ReentrantLock();
 		// 姓名,随机种子,速度(越高越慢),防御(越高约强)
-		Fighter a = new Fighter("铁牛",10,1,7);
+		Fighter a = new Fighter("铁牛",10,1,10);
 		Fighter b = new Fighter("提辖",20,5,10);
-		a.setMatcher(b);
-		b.setMatcher(a);
+		Fighter c = new Fighter("王二",30,5,7);
+		a.addMatcher(b);
+		a.addMatcher(c);
+		b.addMatcher(a);
+		c.addMatcher(a);
 		a.setLock(lock);
 		b.setLock(lock);
+		c.setLock(lock);
 		a.setQueue(queue);
 		b.setQueue(queue);
+		c.setQueue(queue);
 
-		CyclicBarrier barrier = new CyclicBarrier(2, ()->{
+/*		CyclicBarrier barrier = new CyclicBarrier(2, ()->{
 		});
-
 		a.setBarrier(barrier);
-		b.setBarrier(barrier);
+		b.setBarrier(barrier);*/
 		
 		ExecutorService exec = Executors.newCachedThreadPool();
 		exec.execute(b);
 		exec.execute(a);
+		exec.execute(c);
 		
 		OrnamentalGarden.sleep(10000);
 		exec.shutdownNow();
 		
 		log.info("=================================================================");
-		String msg = resultStatic(a, b);
+		String msg = resultStatic(a, b, c);
 		log.info("MSG: {}",msg);
 	}
 	
 	
-	private String resultStatic(Fighter a,Fighter b) {
-		int aAttackCount = 0,bAttackCount = 0;
-		int aAttackValue = 0,bAttackValue = 0;
+	private String resultStatic(Fighter a,Fighter b,Fighter c) {
+		int aAttackCount = 0,bAttackCount = 0,cAttackCount = 0;
+		int aAttackValue = 0,bAttackValue = 0,cAttackValue = 0;
 		while(!queue.isEmpty()) {
 			EventLog e = queue.poll();
 			log.info("{}",e);
@@ -201,24 +233,31 @@ public class FightRoud {
 				aAttackCount++;
 				if(e.getAttackValue() > 0)
 					aAttackValue += e.getAttackValue();
-			}else {
+			}else if(e.getAttacker().getName().equals(b.getName())) {
 				bAttackCount++;
 				if(e.getAttackValue() > 0)
 					bAttackValue += e.getAttackValue();
+			}else {
+				cAttackCount++;
+				if(e.getAttackValue()  > 0)
+					cAttackValue += e.getAttackValue();
 			}
 		}
 		
 		String msg = "{name}出手 {count} 次,累计输出伤害 {value}";
 		
 		String msgA = msg.replace("{name}", a.getName())
-						 .replace("{count}", ""+aAttackCount)
-						 .replace("{value}", ""+aAttackValue);
-				
+				 .replace("{count}", ""+aAttackCount)
+				 .replace("{value}", ""+aAttackValue);
 		String msgB = msg.replace("{name}", b.getName())
 				 .replace("{count}", ""+bAttackCount)
-				 .replace("{value}", ""+bAttackValue);		
+				 .replace("{value}", ""+bAttackValue);	
+
+		String msgC = msg.replace("{name}", c.getName())
+				 .replace("{count}", ""+cAttackCount)
+				 .replace("{value}", ""+cAttackValue);		
 		
-		return msgA+";"+msgB;
+		return msgA+";"+msgB+";"+msgC;
 	}
 
 }
