@@ -1,5 +1,7 @@
 package com.fictio.parrot.thinking.thread;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Random;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
@@ -10,7 +12,67 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.junit.Test;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
+
+
+@Data
+abstract class Equipment {
+	private String name;
+	private LocalDate buildData;
+	private Long durable;
+	private String builder;
+	private String desc;
+	// 等级,最高10
+	private Integer degree;
+}
+
+enum Type {
+	sword,knife,stick,glove
+}
+
+@Data
+@EqualsAndHashCode(callSuper=false)
+final class Weapon extends Equipment {
+	private Integer power;
+	private Type type;
+	private Integer sharp;
+}
+
+@Slf4j
+@Data
+class WeaponBuilder {
+	private static Random rand = new Random(33);
+	private String name;
+	// 经验,最高1000
+	private Integer exp;
+	public WeaponBuilder() {
+		this.exp = rand.nextInt(399);
+	}
+	
+	public Weapon build(String name) {
+		int r = exp/200;
+		log.info("{}/200 = {}",exp,r);
+		int degree = exp/200+rand.nextInt(5);
+		if(degree > 10) degree = 10;
+		Weapon weapon = new Weapon();
+		weapon.setName(name);
+		weapon.setBuilder(getName());
+		weapon.setDurable(degree*100L+rand.nextInt(100));
+		weapon.setDegree(degree);
+		weapon.setPower(100);
+		weapon.setSharp(3000);
+		weapon.setType(Type.sword);
+		weapon.setBuildData(LocalDate.now());
+		String desc = new StringBuilder(weapon.getBuildData()
+				.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+				.append(" 铁匠生产").append(name).append("一把").toString();
+		weapon.setDesc(desc);
+		log.info("WEAPON: {}",weapon);
+		return weapon;
+	}
+}
 
 @SuppressWarnings("serial")
 class MatcherQueue extends LinkedBlockingQueue<Fighter>{};
