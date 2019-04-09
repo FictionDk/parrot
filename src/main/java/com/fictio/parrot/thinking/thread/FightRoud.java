@@ -42,19 +42,23 @@ final class Weapon extends Equipment {
 
 @Slf4j
 @Data
-class WeaponBuilder {
+class WeaponBuilder implements Runnable{
 	private static Random rand = new Random(33);
 	private String name;
 	// 经验,最高1000
 	private Integer exp;
-	public WeaponBuilder() {
+	private WeaponQueue wqueues;
+	public WeaponBuilder(String name,WeaponQueue wqueues) {
 		this.exp = rand.nextInt(399);
+		this.name = name;
+		this.wqueues = wqueues;
 	}
 	
-	public Weapon build(String name) {
-		int r = exp/200;
-		log.info("{}/200 = {}",exp,r);
-		int degree = exp/200+rand.nextInt(5);
+	public Weapon build(String weaponName) throws InterruptedException {
+		int r = exp%200;
+		log.info("{}%200 = {}",exp,r);
+		int degree = exp/200+rand.nextInt(6);
+		TimeUnit.SECONDS.sleep(degree);
 		if(degree > 10) degree = 10;
 		Weapon weapon = new Weapon();
 		weapon.setName(name);
@@ -66,16 +70,31 @@ class WeaponBuilder {
 		weapon.setType(Type.sword);
 		weapon.setBuildData(LocalDate.now());
 		String desc = new StringBuilder(weapon.getBuildData()
-				.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
-				.append(" 铁匠生产").append(name).append("一把").toString();
+				.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).append(" 铁匠"+name)
+				.append("生产").append(degree+"级").append(weaponName).append("一把").toString();
 		weapon.setDesc(desc);
 		log.info("WEAPON: {}",weapon);
 		return weapon;
+	}
+	
+	public void run() {
+		try {
+			while(!Thread.interrupted()) {
+				Weapon weapon = build("铁剑");
+				wqueues.add(weapon);
+			}
+		} catch (Exception e) {
+			log.error("Weapon build error, {}",e.toString());
+		}
+		
 	}
 }
 
 @SuppressWarnings("serial")
 class MatcherQueue extends LinkedBlockingQueue<Fighter>{};
+
+@SuppressWarnings("serial")
+class WeaponQueue extends LinkedBlockingQueue<Weapon>{};
 
 @Slf4j
 class Fighter implements Runnable{
@@ -92,6 +111,8 @@ class Fighter implements Runnable{
 	private int blood;
 	private Fighter matcher;
 	private MatcherQueue matchers;
+	private WeaponQueue weapons;
+	private Weapon weapon;
 	
 	private ReentrantLock attackLock;
 
@@ -147,6 +168,10 @@ class Fighter implements Runnable{
 		this.queue = queue;
 	}
 	
+	public void setWeaponQueue(WeaponQueue queue) {
+		this.weapons = queue;
+	}
+	
 	/**
 	 * <p>遭受攻击
 	 * 
@@ -167,6 +192,7 @@ class Fighter implements Runnable{
 		try {
 			if(this.matcher == null) this.matcher = this.matchers.take();
 			while(!isEnd()) {
+				weaponEqu();
 				attack();
 				TimeUnit.MILLISECONDS.sleep(10*speed);
 				//barrier.await();
@@ -181,6 +207,18 @@ class Fighter implements Runnable{
 		if(Thread.interrupted() || FighterStatus.DOWN.equals(this.status) || this.matcher == null
 				|| FighterStatus.DOWN.equals(this.matcher.status)) return true;
 		else return false;
+	}
+	
+	public synchronized void weaponEqu() throws InterruptedException {
+		Weapon tmp = null;
+		if(weapon == null && weapons != null) {
+			tmp = weapons.poll(100, TimeUnit.MILLISECONDS);
+		}else return;
+		
+		if(tmp != null) {
+			this.weapon = tmp;
+			log.info("{} 获取 {}",this.name, this.weapon);
+		}
 	}
 	
 	public void attack() {
@@ -265,6 +303,14 @@ public class FightRoud {
 		a.setQueue(queue);
 		b.setQueue(queue);
 		c.setQueue(queue);
+		
+		
+		WeaponQueue weaponQueue = new WeaponQueue();
+		WeaponBuilder builder = new WeaponBuilder("牛三儿", weaponQueue);
+		a.setWeaponQueue(weaponQueue);
+		b.setWeaponQueue(weaponQueue);
+		c.setWeaponQueue(weaponQueue);
+		
 
 /*		CyclicBarrier barrier = new CyclicBarrier(2, ()->{
 		});
@@ -275,8 +321,9 @@ public class FightRoud {
 		exec.execute(b);
 		exec.execute(a);
 		exec.execute(c);
+		exec.execute(builder);
 		
-		OrnamentalGarden.sleep(10000);
+		OrnamentalGarden.sleep(20000);
 		exec.shutdownNow();
 		
 		log.info("=================================================================");
