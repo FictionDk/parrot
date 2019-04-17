@@ -178,7 +178,7 @@ class Fighter implements Runnable{
 	 * @param actualAttack
 	 * @return boolean 如果倒地,返回true,否则false
 	 */
-	private boolean getHurt(int actualAttack) {
+	private synchronized boolean getHurt(int actualAttack) {
 		this.blood -= actualAttack;
 		if(this.blood <= 0 ) {
 			this.status = FighterStatus.DOWN;
@@ -291,15 +291,25 @@ public class FightRoud {
 		ReentrantLock lock = new ReentrantLock();
 		// 姓名,随机种子,速度(越高越慢),防御(越高约强)
 		Fighter a = new Fighter("铁牛",10,1,10);
-		Fighter b = new Fighter("提辖",20,5,10);
-		Fighter c = new Fighter("王二",30,5,7);
+		Fighter b = new Fighter("提辖",20,2,10);
+		Fighter c = new Fighter("王二",15,2,7);
+		Fighter d = new Fighter("牛三",15,2,7);
+		
 		a.addMatcher(b);
 		a.addMatcher(c);
 		b.addMatcher(a);
+		b.addMatcher(d);
 		c.addMatcher(a);
+		c.addMatcher(d);
+		d.addMatcher(b);
+		d.addMatcher(c);
+		
+		
+		
 		a.setLock(lock);
 		b.setLock(lock);
 		c.setLock(lock);
+		d.setLock(lock);
 		a.setQueue(queue);
 		b.setQueue(queue);
 		c.setQueue(queue);
@@ -323,7 +333,7 @@ public class FightRoud {
 		exec.execute(c);
 		exec.execute(builder);
 		
-		OrnamentalGarden.sleep(20000);
+		OrnamentalGarden.sleep(15000);
 		exec.shutdownNow();
 		
 		log.info("=================================================================");
