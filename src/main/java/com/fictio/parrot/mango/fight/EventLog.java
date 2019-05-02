@@ -4,8 +4,19 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.LinkedBlockingQueue;
 
-@SuppressWarnings("serial")
-class LogQueue extends LinkedBlockingQueue<EventLog>{};
+import lombok.extern.slf4j.Slf4j;
+
+@SuppressWarnings({ "serial", "unused" })
+//@Slf4j
+class LogQueue extends LinkedBlockingQueue<EventLog>{
+	
+	@Override
+	public boolean add(EventLog elog) {
+		//log.info("Get a Log:  {}, myself: {}, enmy: {}",elog,elog.getAttacker(),elog.getDefender());
+		return super.add(elog);
+	}
+	
+};
 
 public class EventLog {
 	private static int counter = 0;

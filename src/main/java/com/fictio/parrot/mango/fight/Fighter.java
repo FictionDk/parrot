@@ -70,7 +70,7 @@ public class Fighter implements Runnable {
 		if(cautiousValue <= 2) sb.append("保守");
 		else if(cautiousValue > 2 && cautiousValue < 4) sb.append("一般");
 		else sb.append("狂放;");
-		
+		sb.append("当前血量:　").append(blood);
 		return sb.toString();
 	}
 
@@ -79,8 +79,10 @@ public class Fighter implements Runnable {
 		try {
 			log.info("{} -- {}",this.name, (!Thread.interrupted() && FighterStatus.SURVIVE.equals(this.status)));
 			while(!Thread.interrupted() && FighterStatus.SURVIVE.equals(this.status)) {
-				if(this.matcher == null && this.matchers != null && this.matchers.size() > 0) 
-					this.matcher = this.matchers.peek();
+				if((this.matcher == null || this.matcher.status.equals(FighterStatus.DOWN))  
+						&& this.matchers != null && this.matchers.size() > 0) {
+					this.matcher = getOneMatcher(this.matcher);
+				}
 				attack();
 				TimeUnit.MILLISECONDS.sleep(10*speed);
 			}
@@ -128,12 +130,19 @@ public class Fighter implements Runnable {
 			this.logQueue.add(new EventLog(getDefMsg(actualAttack), this.matcher, this, actualAttack));
 			if(actualAttack > 0) {
 				if(this.matcher.getHurt(actualAttack)) {
-					this.matcher = this.matchers.poll();
+					this.matcher = getOneMatcher(this.matcher);
 				}
 			}
 		}finally {
 			this.attackLock.unlock();
 		}
+	}
+	
+	private Fighter getOneMatcher(Fighter oldm) {
+		for(Fighter newm : this.matchers) {
+			if(FighterStatus.SURVIVE.equals(newm.status)) return newm;
+		}
+		return oldm;
 	}
 	
 	private String getAttackMsg() {
@@ -150,7 +159,7 @@ public class Fighter implements Runnable {
 	}
 	
 	private String getFailedMsg() {
-		StringBuilder sb = new StringBuilder(this.matcher.name).append("体力不支,倒地不起");
+		StringBuilder sb = new StringBuilder(this.name).append("体力不支,倒地不起");
 		return sb.toString();
 	}
 }
