@@ -1,5 +1,7 @@
 package com.fictio.parrot.thinking.thread;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Random;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
@@ -10,10 +12,89 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.junit.Test;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
+
+
+@Data
+abstract class Equipment {
+	private String name;
+	private LocalDate buildData;
+	private Long durable;
+	private String builder;
+	private String desc;
+	// 等级,最高10
+	private Integer degree;
+}
+
+enum Type {
+	sword,knife,stick,glove
+}
+
+@Data
+@EqualsAndHashCode(callSuper=false)
+final class Weapon extends Equipment {
+	private Integer power;
+	private Type type;
+	private Integer sharp;
+}
+
+@Slf4j
+@Data
+class WeaponBuilder implements Runnable{
+	private static Random rand = new Random(33);
+	private String name;
+	// 经验,最高1000
+	private Integer exp;
+	private WeaponQueue wqueues;
+	public WeaponBuilder(String name,WeaponQueue wqueues) {
+		this.exp = rand.nextInt(399);
+		this.name = name;
+		this.wqueues = wqueues;
+	}
+	
+	public Weapon build(String weaponName) throws InterruptedException {
+		int r = exp%200;
+		log.info("{}%200 = {}",exp,r);
+		int degree = exp/200+rand.nextInt(6);
+		TimeUnit.SECONDS.sleep(degree);
+		if(degree > 10) degree = 10;
+		Weapon weapon = new Weapon();
+		weapon.setName(name);
+		weapon.setBuilder(getName());
+		weapon.setDurable(degree*100L+rand.nextInt(100));
+		weapon.setDegree(degree);
+		weapon.setPower(100);
+		weapon.setSharp(3000);
+		weapon.setType(Type.sword);
+		weapon.setBuildData(LocalDate.now());
+		String desc = new StringBuilder(weapon.getBuildData()
+				.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).append(" 铁匠"+name)
+				.append("生产").append(degree+"级").append(weaponName).append("一把").toString();
+		weapon.setDesc(desc);
+		log.info("WEAPON: {}",weapon);
+		return weapon;
+	}
+	
+	public void run() {
+		try {
+			while(!Thread.interrupted()) {
+				Weapon weapon = build("铁剑");
+				wqueues.add(weapon);
+			}
+		} catch (Exception e) {
+			log.error("Weapon build error, {}",e.toString());
+		}
+		
+	}
+}
 
 @SuppressWarnings("serial")
 class MatcherQueue extends LinkedBlockingQueue<Fighter>{};
+
+@SuppressWarnings("serial")
+class WeaponQueue extends LinkedBlockingQueue<Weapon>{};
 
 @Slf4j
 class Fighter implements Runnable{
@@ -30,6 +111,8 @@ class Fighter implements Runnable{
 	private int blood;
 	private Fighter matcher;
 	private MatcherQueue matchers;
+	private WeaponQueue weapons;
+	private Weapon weapon;
 	
 	private ReentrantLock attackLock;
 
@@ -85,13 +168,17 @@ class Fighter implements Runnable{
 		this.queue = queue;
 	}
 	
+	public void setWeaponQueue(WeaponQueue queue) {
+		this.weapons = queue;
+	}
+	
 	/**
 	 * <p>遭受攻击
 	 * 
 	 * @param actualAttack
 	 * @return boolean 如果倒地,返回true,否则false
 	 */
-	private boolean getHurt(int actualAttack) {
+	private synchronized boolean getHurt(int actualAttack) {
 		this.blood -= actualAttack;
 		if(this.blood <= 0 ) {
 			this.status = FighterStatus.DOWN;
@@ -105,6 +192,7 @@ class Fighter implements Runnable{
 		try {
 			if(this.matcher == null) this.matcher = this.matchers.take();
 			while(!isEnd()) {
+				weaponEqu();
 				attack();
 				TimeUnit.MILLISECONDS.sleep(10*speed);
 				//barrier.await();
@@ -119,6 +207,18 @@ class Fighter implements Runnable{
 		if(Thread.interrupted() || FighterStatus.DOWN.equals(this.status) || this.matcher == null
 				|| FighterStatus.DOWN.equals(this.matcher.status)) return true;
 		else return false;
+	}
+	
+	public synchronized void weaponEqu() throws InterruptedException {
+		Weapon tmp = null;
+		if(weapon == null && weapons != null) {
+			tmp = weapons.poll(100, TimeUnit.MILLISECONDS);
+		}else return;
+		
+		if(tmp != null) {
+			this.weapon = tmp;
+			log.info("{} 获取 {}",this.name, this.weapon);
+		}
 	}
 	
 	public void attack() {
@@ -191,18 +291,36 @@ public class FightRoud {
 		ReentrantLock lock = new ReentrantLock();
 		// 姓名,随机种子,速度(越高越慢),防御(越高约强)
 		Fighter a = new Fighter("铁牛",10,1,10);
-		Fighter b = new Fighter("提辖",20,5,10);
-		Fighter c = new Fighter("王二",30,5,7);
+		Fighter b = new Fighter("提辖",20,2,10);
+		Fighter c = new Fighter("王二",15,2,7);
+		Fighter d = new Fighter("牛三",15,2,7);
+		
 		a.addMatcher(b);
 		a.addMatcher(c);
 		b.addMatcher(a);
+		b.addMatcher(d);
 		c.addMatcher(a);
+		c.addMatcher(d);
+		d.addMatcher(b);
+		d.addMatcher(c);
+		
+		
+		
 		a.setLock(lock);
 		b.setLock(lock);
 		c.setLock(lock);
+		d.setLock(lock);
 		a.setQueue(queue);
 		b.setQueue(queue);
 		c.setQueue(queue);
+		
+		
+		WeaponQueue weaponQueue = new WeaponQueue();
+		WeaponBuilder builder = new WeaponBuilder("牛三儿", weaponQueue);
+		a.setWeaponQueue(weaponQueue);
+		b.setWeaponQueue(weaponQueue);
+		c.setWeaponQueue(weaponQueue);
+		
 
 /*		CyclicBarrier barrier = new CyclicBarrier(2, ()->{
 		});
@@ -213,8 +331,9 @@ public class FightRoud {
 		exec.execute(b);
 		exec.execute(a);
 		exec.execute(c);
+		exec.execute(builder);
 		
-		OrnamentalGarden.sleep(10000);
+		OrnamentalGarden.sleep(15000);
 		exec.shutdownNow();
 		
 		log.info("=================================================================");
