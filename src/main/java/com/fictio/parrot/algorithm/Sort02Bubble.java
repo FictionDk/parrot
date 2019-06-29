@@ -21,11 +21,15 @@ public class Sort02Bubble {
 	 */
 	public void naiveBubbleSort(Integer[] ints) {
 		for(int i = 0; i < ints.length ; i++) {
+			boolean sorted = true;
 			for(int j = 0; j < ints.length-i-1; j++) {
 				if(ints[j] < ints[j+1]) AlgorithmUtils.swap(ints, j, j+1);
 				log.info("j={},arrs={}",j,Arrays.toString(ints));
+				sorted = false;
 				AlgorithmUtils.sleep(1);
 			}
+			// 确保当无交换进行时,不需要排序
+			if(sorted) break;
 		}
 	}
 	
@@ -52,7 +56,7 @@ public class Sort02Bubble {
 
 	@Test
 	public void test() {
-		Integer[] ints = AlgorithmUtils.buildRandArray(5);
+		Integer[] ints = AlgorithmUtils.buildRandArray(6);
 		//naiveBubbleSort(ints);
 		improvedBubbleSort(ints);
 	}
