@@ -133,5 +133,13 @@ Constructor.newInstance(Object... initargs);
 ## algorithm 算法
 > 使用java实现各种算法
 
+1. sort01贪心排序算法
+2. sort02冒泡排序算法
+3. 贪心算法--霍夫曼编码--(平衡)二叉树
+4. 搜索树BST(二叉树)&BBST(平衡二叉树)
+5. 散列表,底层用数组(取模),冲突时用list
+6. Huffman: Stack+Queue
+7. Minimum Spaning Tree,最小支撑树,MST
+
     
     

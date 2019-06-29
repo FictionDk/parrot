@@ -11,6 +11,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AlgorithmUtils {
 
+	public static Integer[][] buildRandMatrix(Integer len){
+		Random rand = new Random();
+		if(len == null) len = 2 + rand.nextInt(4);
+		Integer[][] matrix = new Integer[len][len];
+		
+		for(int i = 0; i < len; i++) {
+			for(int j = i; j < len; j++) {
+				matrix[i][j] = rand.nextInt(len+20);
+			}
+		}
+		
+		return matrix;
+	}
+	
 	public static void swap(Integer[]ints, int i, int j) {
 		int tmp = ints[i];
 		ints[i] = ints[j];
@@ -41,6 +55,14 @@ public class AlgorithmUtils {
 		Integer[] ints = {12,17,11};
 		AlgorithmUtils.swap(ints, i, j);
 		log.info("{}",Arrays.toString(ints));
+	}
+	
+	@Test
+	public void matrixTest() {
+		Integer[][] m = buildRandMatrix(3);
+		for(Integer[] a : m) {
+			log.info("{}",Arrays.toString(a));
+		}
 	}
 	
 }
