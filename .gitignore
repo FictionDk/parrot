@@ -17,5 +17,5 @@
 **/application-loc.yml
 logs/
 **/generator.xml
-
+*.hprof
 
