@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.fictio.parrot.demo.Student.Sex;
+
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -72,9 +74,24 @@ public class CollectionTest {
         stus.forEach(s->log.info("{}",s));
     }
     
+    @Test
+    public void group() {
+        if(stus == null || stus.isEmpty()) return;
+        Map<Sex,List<Student>> stuMap = stus.stream().collect(Collectors.groupingBy(Student::getSex));
+        stuMap.forEach((k,v)->log.info("{} | {}",k,v));
+    }
+    
     public <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor){
         Map<Object, Boolean> map = new ConcurrentHashMap<>();
         return t->map.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 
+    @Test
+    public void listAddTest() {
+        List<Integer> list = new ArrayList<>();
+        for(int i = 0; i < 20 ; i++) {
+            list.add(1);
+        }
+    }
+    
 }
