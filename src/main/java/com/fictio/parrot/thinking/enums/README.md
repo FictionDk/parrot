@@ -17,3 +17,24 @@
 ### Siwch语句中的enum(`TrafficLight`)
 
 1. 当switch中缺少defalut时,编译器的`warning`情况
+
+### 通过反射获取values()方法,检查valueOf(...)方法(`Reflection`)
+
+1. values()方法是由编译器添加的`static`方法;
+2. valueOf(...)新增重载方法,一个参数
+
+### 使用接口组织枚举(`RandomTest`,`EnumImpl`)
+
+1. 接口组织枚举
+2. "枚举的枚举"
+
+### 枚举相关集合(`EnumSets`,`EnumMaps`)
+
+[EnumSets](./EnumSets.java)  
+[EnumMaps](./EnumMaps.java)  
+
+1. EnumSet 使用 long 作为bit向量,提高处理速度
+2. EnumSet.of(...) 方法 在5个参数内通过重载提高速度,超过5个使用可变参函数(数组)
+3. enum实例定义的次序决定其在EnumMap和EnumSet中的次序
+
+
