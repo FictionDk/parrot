@@ -37,9 +37,9 @@
 2. EnumSet.of(...) 方法 在5个参数内通过重载提高速度,超过5个使用可变参函数(数组)
 3. enum实例定义的次序决定其在EnumMap和EnumSet中的次序
 
-### 枚举常量相关方法(`ConstantSpecificMeth`)
+### 枚举常量相关方法(`ConstantSpecificMethod`)
 
-[ConstantSpecificMeth](./ConstantSpecificMeth.java)
+[ConstantSpecificMethod](./ConstantSpecificMethod.java)
 
 ### enum职责链(`PostOffic`)
 

@@ -1,22 +1,27 @@
 package com.fictio.parrot.thinking.enums;
 
+import java.util.EnumMap;
 import java.util.Iterator;
+import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import lombok.extern.slf4j.Slf4j;
 
 class Mail {
 	enum GeneralDelivery { YES,NO1,NO2,NO3,NO4,NO5 }
-	enum Scannability { UNSCANNABLE,YES1,YES2,YES3,YES4 }
-	enum Readability { ILLEGIBLE,YES1,YES2,YES3,YES4 }
-	enum Address { INCORRECT, OK1, OK3, OK4, OK5, OK6 }
-	enum ReturnAddress { MISSING,ok1, ok2, ok3, ok4, ok5 }
+	enum Scannability { UNSCANNABLE,YES1,YES2,YES3}
+	enum Readability { ILLEGIBLE,YES1,YES2,YES3 }
+	enum Address { INCORRECT, OK1, OK2, OK3 }
+	enum ReturnAddress { MISSING,OK1, OK2, OK3 }
+	enum ForwardDelivery { YES,NO1,NO2,NO3 }
 	GeneralDelivery generalDelivery;
 	Scannability scannability;
 	Readability readability;
 	Address address;
 	ReturnAddress returnAddress;
+	ForwardDelivery forwardDelivery;
 	static long counter = 0;
 	long id = counter++;
 	public String toString() {
@@ -28,7 +33,8 @@ class Mail {
 				", Scannability: " + scannability +
 				", Readability: " + readability +
 				", Address: " + address +
-				", ReturnAddress: " + returnAddress;
+				", ReturnAddress: " + returnAddress +
+				", ForwardDelivery: " + forwardDelivery;
 	}
 	
 	public static Mail randomMail() {
@@ -38,6 +44,7 @@ class Mail {
 		m.readability = EnumUtils.random(Readability.class);
 		m.address = EnumUtils.random(Address.class);
 		m.returnAddress = EnumUtils.random(ReturnAddress.class);
+		m.forwardDelivery = EnumUtils.random(ForwardDelivery.class);
 		return m;
 	}
 	
@@ -64,6 +71,7 @@ class Mail {
 
 @Slf4j
 public class PostOffice {
+	// 实现职责链,enum定义的次序决定了策略应用时的次序
 	enum MailHandler {
 		GENERAL_DELIVERY {
 			boolean handle(Mail m) {
@@ -115,6 +123,17 @@ public class PostOffice {
 					return true;
 				}
 			}
+		},
+		FORWARD_DELIVERY {
+			@Override
+			boolean handle(Mail m) {
+				switch (m.forwardDelivery) {
+				case YES:
+					log.debug("Forward Delivery for {}",m);
+					return true;
+				default: return false;
+				}
+			}
 		};
 		abstract boolean handle(Mail m);
 	}
@@ -123,14 +142,36 @@ public class PostOffice {
 		for(MailHandler handle : MailHandler.values()) {
 			if(handle.handle(m)) return;
 		}
+		log.debug("{} is a dead letter!!",m);
+	}
+	
+	interface Command {
+		boolean action(Mail m);
+	}
+	
+	EnumMap<MailHandler, Command> enumMaps = new EnumMap<>(MailHandler.class);
+	@Before
+	public void init() {
+		for(MailHandler handler : MailHandler.values()) {
+			enumMaps.put(handler, m->handler.handle(m));
+		}
+	}
+	// 使用Enum实现"职责链"
+	public void handleByMaps(Mail m) {
+		for(Map.Entry<MailHandler, Command> mc : enumMaps.entrySet()) {
+			if(mc.getValue().action(m)) return;
+		}
+		log.debug("{} is a dead letter!!",m);		
 	}
 	
 	@Test
 	public void mailPostTest() {
-		for(Mail m : Mail.generator(10)) {
+		for(Mail m : Mail.generator(20)) {
 			log.debug("details => {}",m.details());
-			handle(m);
+			//handle(m);
+			handleByMaps(m);
 			log.debug(" **** ");
 		}
 	}
+	
 }
