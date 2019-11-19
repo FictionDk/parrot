@@ -45,6 +45,15 @@
 
 [PostOffice](./PostOffice.java)
 
+### enum状态机
+
+使用enum的状态机[VendingMachine](./VendingMachine.java)
+Add Money -> Item selection -> Get change
+                |
+             Abord transaction -> Get change(return)
+                |
+          <- Insufficient money for item
+
 
 
 
