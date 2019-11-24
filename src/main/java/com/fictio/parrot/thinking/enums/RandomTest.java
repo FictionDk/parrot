@@ -1,23 +1,10 @@
 package com.fictio.parrot.thinking.enums;
 
-import java.util.Random;
-
 import org.junit.Test;
 import com.fictio.parrot.thinking.enums.RandomTest.Food.Coffee;
 import com.fictio.parrot.thinking.enums.RandomTest.Food.Dessert;
 
 import lombok.extern.slf4j.Slf4j;
-
-class EnumUtils {
-	private static Random rand = new Random(47);
-	// T<extends Enum<T>> 表示 T 是 Enum 的一个实例
-	public static <T extends Enum<T>> T random(Class<T> ec) {
-		return random(ec.getEnumConstants());
-	}
-	public static <T> T random(T[] values) {
-		return values[rand.nextInt(values.length)];
-	}
-}
 
 @Slf4j
 public class RandomTest {
