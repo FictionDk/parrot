@@ -54,6 +54,11 @@ Add Money -> Item selection -> Get change
                 |
           <- Insufficient money for item
 
+### 多路分发
+
+1. [使用接口实现多路分发](./multiple/RoShamBo1.java)
+2. [使用Enum实现多路分发1](./multiple/RoShamBo2.java)
+2. [使用Enum常量相关方法实现多路分发2](./multiple/RoShamBo3.java)
 
 
 
