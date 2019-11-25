@@ -7,7 +7,7 @@ interface Competitor<T> {
 }
 
 public enum RoShamBo2 implements Competitor<RoShamBo2> {
-
+	// 二维数组的雏形
 	PAPER(DRAW,LOSE,WIN),
 	SCISSORS(WIN,DRAW,LOSE),
 	ROCK(LOSE,WIN,DRAW)

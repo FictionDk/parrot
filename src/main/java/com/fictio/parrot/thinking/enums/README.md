@@ -58,8 +58,12 @@ Add Money -> Item selection -> Get change
 
 1. [使用接口实现多路分发](./multiple/RoShamBo1.java)
 2. [使用Enum实现多路分发1](./multiple/RoShamBo2.java)
-2. [使用Enum常量相关方法实现多路分发2](./multiple/RoShamBo3.java)
+3. [使用Enum常量相关方法实现多路分发2](./multiple/RoShamBo3.java)
+4. [使用双参数增加分发优化常量方法实现的多路分发](./multiple/RoShamBo4.java)
+5. [使用EnumMap实现的多路分发](./multiple/RoShamBo5.java)
+6. [使用二维数组实现的多路分发](./multiple/RoShamBo6.java)
 
+注: ==表驱动式编码==, 分析各种表的表现形式,找出最合适的一种
 
 
 
