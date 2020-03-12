@@ -94,4 +94,21 @@ public class CollectionTest {
         }
     }
     
+    /**
+     * Sex.FEMALE.equals(val.getSex()) || Sex.MALE.equals(val.getSex())
+     */
+    @Test
+    public void streamMatchTest() {
+    	log.info("1.Match result = {}",stus.stream().allMatch(val->val.getBirthday().isAfter(LocalDate.now())));
+    	log.info("2.Match result = {}",stus.stream().filter(val-> val.getBirthday() != null)
+    			.allMatch(val->val.getBirthday().isBefore(LocalDate.now())));
+    	log.info("3.Match result = {}",stus.stream().anyMatch(val->val.getName().equals("大侠")));
+    	log.info("4.Match result = {}",stus.stream().anyMatch(val->val.getName().equals("张三")));
+    	log.info("5.Match result = {}",stus.stream().allMatch(val->val.getName().equals("张三")));
+    	Student stu = stus.get(0);
+    	log.info("51={}",Sex.FEMALE.equals(stu.getSex()) || Sex.MALE.equals(stu.getSex()));
+    	log.info("6.Match result = {}",stus.stream().allMatch(val->(Sex.FEMALE.equals(val.getSex()) 
+    			|| Sex.MALE.equals(val.getSex()))));
+    }
+    
 }
