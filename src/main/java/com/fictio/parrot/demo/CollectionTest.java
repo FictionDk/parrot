@@ -34,6 +34,7 @@ class Student {
     String name;
     Sex sex;
     LocalDate birthday;
+    Integer grade;
 }
 
 @Slf4j

@@ -27,12 +27,12 @@ class DoThread implements Callable<String> {
         TimeUnit.SECONDS.sleep(1);
         return msg+" been finished";
     }
-    
+
     private void randomException() {
         int i = new Random().nextInt(10);
         if(i > 4) throw new RuntimeException(name + " : Test Excption!");
     }
-    
+
     public String getName() {
         return name;
     }
@@ -47,7 +47,7 @@ class DoThread implements Callable<String> {
 
 @Slf4j
 public class ThreadCallBackDemo {
-    
+
     @Test
     public void test() {
         ExecutorService pool = Executors.newFixedThreadPool(5);
@@ -55,7 +55,7 @@ public class ThreadCallBackDemo {
         for(int i = 0; i < 100; i++) {
             things.add(new DoThread("T-"+i));
         }
-        
+
         try {
             List<Future<String>> results = pool.invokeAll(things);
             for(Future<String> re : results ) {
