@@ -26,12 +26,12 @@ public class DoubleTests {
     @Before
     public void preTest() {
         stus = new ArrayList<>();
-        stus.add(new Student("张三",Student.Sex.MALE,LocalDate.of(2000, 1, 1)));
-        stus.add(new Student("李四",Student.Sex.FEMALE,LocalDate.of(1990, 1, 1)));
-        stus.add(new Student("李四",Student.Sex.MALE,LocalDate.of(1993, 1, 1)));
-        stus.add(new Student("王五",Student.Sex.MALE,LocalDate.of(1991, 1, 1)));
-        stus.add(new Student("金唯",Student.Sex.FEMALE,LocalDate.of(1992, 1, 1)));
-        stus.add(new Student("金唯",Student.Sex.FEMALE,null));
+        stus.add(new Student(1,"张三",Student.Sex.MALE,LocalDate.of(2000, 1, 1)));
+        stus.add(new Student(2,"李四",Student.Sex.FEMALE,LocalDate.of(1990, 1, 1)));
+        stus.add(new Student(3,"李四",Student.Sex.MALE,LocalDate.of(1993, 1, 1)));
+        stus.add(new Student(4,"王五",Student.Sex.MALE,LocalDate.of(1991, 1, 1)));
+        stus.add(new Student(5,"金唯",Student.Sex.FEMALE,LocalDate.of(1992, 1, 1)));
+        stus.add(new Student(6,"金唯",Student.Sex.FEMALE,null));
 
         processDate = LocalDate.now();
         reportDate = processDate.plusDays(-10);

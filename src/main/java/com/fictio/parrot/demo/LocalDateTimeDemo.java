@@ -18,6 +18,20 @@ public class LocalDateTimeDemo {
         log.debug("--> {}",gapDays);
         gapDays = LocalDate.now().until(c.toLocalDate(), ChronoUnit.DAYS);
         log.debug("--> {}",Math.abs(gapDays));
-        
+
+    }
+
+    @Test
+    public void compareTest() {
+        LocalDate start = LocalDate.now().plusDays(-9);
+        LocalDate end = LocalDate.now();
+
+        int i = 0;
+        while(start.isBefore(end)) {
+            log.debug("{} isbefore {} = {}",start,end,start.isBefore(end));
+            start = start.plusDays(1);
+            i ++;
+            if(i > 20) break;
+        }
     }
 }

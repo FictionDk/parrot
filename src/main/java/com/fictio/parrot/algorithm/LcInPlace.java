@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
  * @Description: 原地算法
  */
 @Slf4j
-public class InPlace {
+public class LcInPlace {
 
     private int[] sortedNums = {1,1,2,2,2,4,6,6};
 

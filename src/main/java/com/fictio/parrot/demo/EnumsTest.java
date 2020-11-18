@@ -26,15 +26,21 @@ enum RhBloodType{
     }
 }
 
+enum Level {
+    HIGH, LOW;
+}
+
 @Slf4j
 public class EnumsTest {
-    
+
     @Test
     public void test() {
         RhBloodType type = RhBloodType.getRhBloodType("1");
         log.info("Type: {}",type);
+        log.info("{}", Level.valueOf("HIGH"));
+        log.info("{}", Level.valueOf("HIGH1"));
     }
-    
+
     @Test
     public void doubleFromString() {
         try {
