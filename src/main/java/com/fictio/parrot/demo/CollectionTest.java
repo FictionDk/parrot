@@ -28,10 +28,6 @@ class Student {
         this.sex = sex;
         this.birthday = birth;
     }
-    public Student setGrade(Integer g) {
-        this.grade = g;
-        return this;
-    }
     String name;
     Sex sex;
     LocalDate birthday;
@@ -46,23 +42,22 @@ public class CollectionTest {
     @Before
     public void collectionsBuild() {
         stus = new ArrayList<>();
-        stus.add(new Student("张三",Student.Sex.MALE,LocalDate.of(2000, 1, 1)).setGrade(90));
-        stus.add(new Student("李四",Student.Sex.FEMALE,LocalDate.of(1990, 1, 1)).setGrade(80));
-        stus.add(new Student("李四",Student.Sex.MALE,LocalDate.of(1993, 1, 1)).setGrade(55));
-        stus.add(new Student("王五",Student.Sex.MALE,LocalDate.of(1991, 1, 1)).setGrade(34));
-        stus.add(new Student("金唯",Student.Sex.FEMALE,LocalDate.of(1992, 1, 1)).setGrade(60));
-        //stus.add(new Student("金唯",Student.Sex.FEMALE,null));
+        stus.add(new Student("张三",Student.Sex.MALE,LocalDate.of(2000, 1, 1)));
+        stus.add(new Student("李四",Student.Sex.FEMALE,LocalDate.of(1990, 1, 1)));
+        stus.add(new Student("李四",Student.Sex.MALE,LocalDate.of(1993, 1, 1)));
+        stus.add(new Student("王五",Student.Sex.MALE,LocalDate.of(1991, 1, 1)));
+        stus.add(new Student("金唯",Student.Sex.FEMALE,LocalDate.of(1992, 1, 1)));
+        stus.add(new Student("金唯",Student.Sex.FEMALE,null));
     }
-
+    
     @Test
     public void sortTest() {
         if(stus == null || stus.isEmpty()) return;
-        log.debug("{}",stus.stream().sorted(Comparator.comparing(Student::getGrade)).mapToInt(Student::getGrade).findFirst());
-        stus = stus.stream().sorted(Comparator.comparing(Student::getGrade).thenComparing(Student::getSex))
+        stus = stus.stream().sorted(Comparator.comparing(Student::getBirthday).thenComparing(Student::getSex))
                 .collect(Collectors.toList());
         stus.forEach(s->log.info("{}",s));
     }
-
+    
     @Test
     public void distinctTest() {
         if(stus == null || stus.isEmpty()) return;
@@ -70,7 +65,7 @@ public class CollectionTest {
                 .collect(Collectors.toList());
         stus.forEach(s->log.info("{}",s));
     }
-
+    
     @Test
     public void sortAndDistinctJoin() {
         if(stus == null || stus.isEmpty()) return;
@@ -79,7 +74,7 @@ public class CollectionTest {
                 .collect(Collectors.toList());
         stus.forEach(s->log.info("{}",s));
     }
-
+    
     @Test
     public void group() {
         if(stus == null || stus.isEmpty()) return;
@@ -93,11 +88,28 @@ public class CollectionTest {
     }
 
     @Test
-    public void foreachTest() {
-        for(Student s : stus) {
-            if("张三".equals(s.getName())) s.setBirthday(s.getBirthday().plusMonths(2));
+    public void listAddTest() {
+        List<Integer> list = new ArrayList<>();
+        for(int i = 0; i < 20 ; i++) {
+            list.add(1);
         }
-        stus.stream().forEach(System.out::println);
     }
 
+    /**
+     * Sex.FEMALE.equals(val.getSex()) || Sex.MALE.equals(val.getSex())
+     */
+    @Test
+    public void streamMatchTest() {
+    	log.info("1.Match result = {}",stus.stream().allMatch(val->val.getBirthday().isAfter(LocalDate.now())));
+    	log.info("2.Match result = {}",stus.stream().filter(val-> val.getBirthday() != null)
+    			.allMatch(val->val.getBirthday().isBefore(LocalDate.now())));
+    	log.info("3.Match result = {}",stus.stream().anyMatch(val->val.getName().equals("大侠")));
+    	log.info("4.Match result = {}",stus.stream().anyMatch(val->val.getName().equals("张三")));
+    	log.info("5.Match result = {}",stus.stream().allMatch(val->val.getName().equals("张三")));
+    	Student stu = stus.get(0);
+    	log.info("51={}",Sex.FEMALE.equals(stu.getSex()) || Sex.MALE.equals(stu.getSex()));
+    	log.info("6.Match result = {}",stus.stream().allMatch(val->(Sex.FEMALE.equals(val.getSex()) 
+    			|| Sex.MALE.equals(val.getSex()))));
+    }
+    
 }
