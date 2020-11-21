@@ -10,8 +10,8 @@ import org.junit.Test;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @ClassName: Greedy.java
- * @Description: 遍历
+ * @ClassName: LcBucket.java
+ * @Description: 桶
  */
 @Slf4j
 public class LcBucket {
@@ -21,6 +21,7 @@ public class LcBucket {
     private int[] numbers_c = {7,6,4,3,1};
     private int[] numbers_d = {6,1,3,2,4,7,7};
     private int[] numbers_e = {1,5,-2,-4,0};
+    private int[] numbers_f = {4,1,2,1,2};
 
     @Test
     public void test() {
@@ -29,8 +30,10 @@ public class LcBucket {
         log.debug(">>numbers={}, containsDuplicate={}",numbers_c,containsDuplicate(numbers_c));
         log.debug(">>numbers={}, containsDuplicate={}",numbers_d,containsDuplicate(numbers_d));
         log.debug(">>numbers={}, containsDuplicate={}",numbers_e,containsDuplicate(numbers_e));
+        log.debug(">>numbers={}, singleNumber={}",numbers_f,singleNumber(numbers_f));
     }
 
+    // 判断是否存在重复元素
     public boolean containsDuplicate(int[] nums) {
         Map<Integer, Set<Integer>> bucketMap = new HashMap<>(20);
         for(int i = 0; i < nums.length; i++) {
@@ -44,4 +47,16 @@ public class LcBucket {
         }
         return false;
     }
+
+    // 找出那个只出现了一次的元素
+    public int singleNumber(int[] nums) {
+        Set<Integer> bucketSet = new HashSet<>(nums.length/2 + 1);
+        for(int num : nums) {
+            if(bucketSet.contains(num)) bucketSet.remove(num);
+            else bucketSet.add(num);
+        }
+        return (int) bucketSet.toArray()[0];
+    }
+
+
 }
