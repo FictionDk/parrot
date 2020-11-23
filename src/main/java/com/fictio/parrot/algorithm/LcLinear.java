@@ -18,6 +18,10 @@ public class LcLinear {
     private int[] numbers_b = {1,2,3,4,5};
     private int[] numbers_c = {7,6,4,5,3,1};
     private int[] numbers_d = {6,1,3,2,4,7,7};
+    private int[] numbers_e = {4,9,5};
+    private int[] numbers_f = {9,4,9,8,4};
+    private int[] numbers_g = {1,2,2,1};
+    private int[] numbers_h = {2,2};
 
     @Test
     public void test() {
@@ -25,7 +29,9 @@ public class LcLinear {
         log.debug(">>prices={}, maxProfit={}",numbers_b,containsDuplicate(numbers_b));
         log.debug(">>prices={}, maxProfit={}",numbers_c,containsDuplicate(numbers_c));
         log.debug(">>prices={}, maxProfit={}",numbers_d,containsDuplicate(numbers_d));
-        log.debug(">>a={}, b={}, insert={}",numbers_b,numbers_c,intersect(numbers_b,numbers_c));
+        log.debug(">>b={}, c={}, insert={}",numbers_b,numbers_c,intersectOrder(numbers_b,numbers_c));
+        log.debug(">>e={}, f={}, insert={}",numbers_e,numbers_f,intersectOrder(numbers_e,numbers_f));
+        log.debug(">>g={}, h={}, insert={}",numbers_g,numbers_h,intersectOrder(numbers_g,numbers_h));
     }
 
     public boolean containsDuplicate(int[] nums) {
@@ -37,30 +43,33 @@ public class LcLinear {
         return false;
     }
 
-    public Integer[] intersect(int[] nums1, int[]nums2) {
-        List<Integer> container = new ArrayList<>();
-        List<Integer> tmp = new ArrayList<>();
-        int k = 0;
-        boolean isSuccessive = false;
-        for(int i = 0; i < nums1.length ; i++) {
-            for(int j = k; j < nums2.length; j++) {
+    // 找出有序的交集
+    public int[] intersectOrder(int[] nums1, int[]nums2) {
+        List<Integer> result = new ArrayList<>();
+        for(int i = 0; i < nums1.length; i ++) {
+            for(int j = 0; j < nums2.length; j++) {
+                List<Integer> temp = new ArrayList<>();
                 if(nums1[i] == nums2[j]) {
-                    tmp.add(nums1[i]);
-                    k = j;
-                    isSuccessive = true;
-                    break;
+                    for(int k = 0; i + k < nums1.length && j + k < nums2.length ; k++) {
+                        if(nums2[j+k] == nums1[i+k]) {
+                            temp.add(nums2[j+k]);
+                        }else {
+                            break;
+                        }
+                    }
                 }
-                isSuccessive = false;
-                log.debug("i={},j={},t={},c={}",i,j,tmp,container);
-            }
-            if(!isSuccessive || k==nums2.length-1) k = 0;
-            log.debug("i={},t={},c={}",i,tmp,container);
-            if(tmp.size() > container.size()) {
-                container.clear();
-                container.addAll(tmp);
-                tmp.clear();
+                log.debug("i={},j={},temp={},result={}",i,j,temp,result);
+                if(temp.size() > result.size()) {
+                    result.clear();
+                    result.addAll(temp);
+                }
             }
         }
-        return container.toArray(new Integer[container.size()]);
+        int[] arr = new int[result.size()];
+        int i = 0;
+        for(Integer number : result) {
+            arr[i++] = number;
+        }
+        return arr;
     }
 }
