@@ -83,14 +83,41 @@ public class LcLinear {
         return arr;
     }
 
-    // 数组加1;[4,3,2,1]->[4,3,2,2]  [0,0]->[0,1]
-    public int[] plusOne(int[] digits) {
+    // 通过+1运算,实现数组加1;[4,3,2,1]->[4,3,2,2]  [0,0]->[0,1]
+    public int[] plusOneByCalculation(int[] digits) {
         long value = getValue(digits);
         BigInteger bigValue = getBigValue(digits);
         List<Integer> container = buildCollection(++value);
         List<Integer> collection = buildBigCollection(bigValue.add(new BigInteger("1")));
         System.out.println(collection);
         return collectionToArr(container, digits.length);
+    }
+
+    // 通过容器,实现数组加1
+    public int[] plusOneByCollection(int[] digits) {
+        boolean onePlus = true;
+        List<Integer> collection = new ArrayList<>();
+        for(int i = digits.length - 1; i >= 0; i--) {
+            int num = digits[i];
+            if(onePlus) num += 1;
+            if(num < 10) onePlus = false;
+            else num = 0;
+            collection.add(num);
+        }
+        if(onePlus) collection.add(1);
+        //Collections.reverse(collection);
+        return collectionToArr(collection, digits.length);
+    }
+
+    public int[] plusOne(int[] digits) {
+        for(int i = digits.length - 1; i >=0; i--) {
+            digits[i] ++;
+            digits[i] %= 10;
+            if(digits[i] != 0) return digits;
+        }
+        digits = new int[digits.length + 1];
+        digits[0] = 1;
+        return digits;
     }
 
     private int[] collectionToArr(List<Integer> collection,int digitsLen) {
