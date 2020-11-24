@@ -1,5 +1,6 @@
 package com.fictio.parrot.algorithm;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +23,10 @@ public class LcLinear {
     private int[] numbers_f = {9,4,9,8,4};
     private int[] numbers_g = {1,2,2,1};
     private int[] numbers_h = {2,2};
+    private int[] numbers_j = {0,0};
+    private int[] numbers_k = {9,9,9};
+    private int[] numbers_l = {9,8,7,6,5,4,3,2,1,0};
+    private int[] numbers_m = {6,1,4,5,3,9,0,1,9,5,1,8,6,7,0,5,5,4,3};
 
     @Test
     public void test() {
@@ -32,6 +37,11 @@ public class LcLinear {
         log.debug(">>b={}, c={}, insert={}",numbers_b,numbers_c,intersectOrder(numbers_b,numbers_c));
         log.debug(">>e={}, f={}, insert={}",numbers_e,numbers_f,intersectOrder(numbers_e,numbers_f));
         log.debug(">>g={}, h={}, insert={}",numbers_g,numbers_h,intersectOrder(numbers_g,numbers_h));
+        log.debug(">>numbers_f={}, plusOne={}",numbers_f,plusOne(numbers_f));
+        log.debug(">>numbers_j={}, plusOne={}",numbers_j,plusOne(numbers_j));
+        log.debug(">>numbers_k={}, plusOne={}",numbers_k,plusOne(numbers_k));
+        log.debug(">>numbers_l={}, plusOne={}",numbers_l,plusOne(numbers_l));
+        log.debug(">>numbers_m={}, plusOne={}",numbers_m,plusOne(numbers_m));
     }
 
     public boolean containsDuplicate(int[] nums) {
@@ -71,5 +81,61 @@ public class LcLinear {
             arr[i++] = number;
         }
         return arr;
+    }
+
+    // 数组加1;[4,3,2,1]->[4,3,2,2]  [0,0]->[0,1]
+    public int[] plusOne(int[] digits) {
+        long value = getValue(digits);
+        BigInteger bigValue = getBigValue(digits);
+        List<Integer> container = buildCollection(++value);
+        List<Integer> collection = buildBigCollection(bigValue.add(new BigInteger("1")));
+        System.out.println(collection);
+        return collectionToArr(container, digits.length);
+    }
+
+    private int[] collectionToArr(List<Integer> collection,int digitsLen) {
+        int[] arr = new int[collection.size()>digitsLen?collection.size():digitsLen];
+        int i = arr.length - 1;
+        for(Integer num : collection) arr[i--] = num;
+        return arr;
+    }
+
+    private List<Integer> buildBigCollection(BigInteger val){
+        List<Integer> collection = new ArrayList<>();
+        for(char c : val.toString().toCharArray())  collection.add(Integer.parseInt(String.valueOf(c)));
+        return collection;
+    }
+
+    private List<Integer> buildCollection(long value){
+        long remainder = 10;
+        List<Integer> container = new ArrayList<>();
+        while(value != value % remainder) {
+            //log.debug("r={},v={},c={},v%r={}",remainder,value,container,value%remainder);
+            long num = value % remainder;
+            value = value - num;
+            num = num / (remainder/10);
+            container.add((int) num);
+            remainder = remainder * 10;
+        }
+        container.add((int) (value/(remainder/10)));
+        return container;
+    }
+
+    private long getValue(int[] digits) {
+        long remainder = (long) Math.pow(10, (digits.length-1));
+        long value = 0;
+        for(int num : digits) {
+            value = num * remainder + value;
+            remainder /= 10;
+        }
+        return value;
+    }
+
+    private BigInteger getBigValue(int[] digits) {
+        StringBuilder builder = new StringBuilder();
+        for(int num : digits) {
+            builder.append(num);
+        }
+        return new BigInteger(builder.toString());
     }
 }
