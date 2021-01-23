@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,16 +26,44 @@ enum Size{
     SMALL,MEDIUM,BIG
 }
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 class Person {
     private String name;
     private int age;
     private boolean isMan;
+    private LocalDate birthday;
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public int getAge() {
+        return age;
+    }
+    public void setAge(int age) {
+        this.age = age;
+    }
+    public boolean isMan() {
+        return isMan;
+    }
+    public void setMan(boolean isMan) {
+        this.isMan = isMan;
+    }
     @Override
     public String toString() {
-        return "Person [name=" + name + ", age=" + age + ", isMan=" + isMan + "]";
+        StringBuilder builder = new StringBuilder();
+        builder.append("Person [name=");
+        builder.append(name);
+        builder.append(", age=");
+        builder.append(age);
+        builder.append(", isMan=");
+        builder.append(isMan);
+        builder.append(", birthday=");
+        builder.append(birthday);
+        builder.append("]");
+        return builder.toString();
     }
 }
 
@@ -47,7 +76,7 @@ class Coder extends Person{
 
 @Slf4j
 public class Testing {
-    
+
     /**
      * <li> 数组类型的Class对象
      */
@@ -59,12 +88,12 @@ public class Testing {
         Class<? extends String[]> strArrCls = strArr.getClass();
         Class<? extends int [][]> twoDimArrCls = twoDimArr.getClass();
         Class<? extends int []> oneDimArrCls = oneDimArr.getClass();
-        
+
         log.info("strArrCls: {}",strArrCls.toGenericString());
         log.info("twoDimArrCls: {}",twoDimArrCls.toGenericString());
         log.info("oneDimArrCls: {}",oneDimArrCls.toGenericString());
     }
-    
+
     /**
      * <li> 枚举类型的Class对象
      */
@@ -73,7 +102,7 @@ public class Testing {
         Class<? extends Size> enumCls = Size.MEDIUM.getClass();
         log.info("enumCls: {}",enumCls.toGenericString());
     }
-    
+
     /**
      * <li> class.forName()使用
      * <li> 基本类型不支持forName()的使用
@@ -95,14 +124,16 @@ public class Testing {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * <li> 使用 Field.set(obj,value)方法,不需要字段是否有set方法,可以直接赋值到变量
      * <li> 如果是静态变量,obj可以为null
      * <li> 可以使用Field.getModifiers()获取int,使用Modifier中的静态方法查看字段修饰符
+     * @throws SecurityException
+     * @throws NoSuchFieldException
      */
     @Test
-    public void fieldTest() {
+    public void fieldTest() throws NoSuchFieldException, SecurityException {
         Person p = new Person();
         Class<? extends Person> cls = p.getClass();
         Field[] fileds = cls.getDeclaredFields();
@@ -123,8 +154,21 @@ public class Testing {
             log.info("isStatic:{}",Modifier.isStatic(mod));
             log.info("isVolatile:{}",Modifier.isVolatile(mod));
         }
+
+        Class<? extends Coder> coderClazz = Coder.class;
+        Field[] coderFileds = coderClazz.getDeclaredFields();  // 无法访问父类继承字段
+        for(Field f : coderFileds) {
+            log.info("c_f: {}",f);
+        }
+        //Field f = coderClazz.getDeclaredField("age");
+        //log.info("c_f_a: {}",f);
+        //f = coderClazz.getDeclaredField("birthday");
+        //log.info("c_f_b: {}",f);
+        for(Field f : coderClazz.getSuperclass().getDeclaredFields()) {
+            log.info("c_f: {}",f);
+        }
     }
-    
+
     @Test
     public void methodTest() {
         Class<? extends Coder> cls = Coder.class;
@@ -147,7 +191,7 @@ public class Testing {
                 }
         }
     }
-    
+
     @Test
     public void staticMethodTest() {
         Class<?> cls = Integer.class;
@@ -166,7 +210,7 @@ public class Testing {
             e.printStackTrace();
         }
     }
-    
+
     @Test
     public void constructMethodTest() {
         Class<Person> cls = Person.class;
@@ -186,7 +230,7 @@ public class Testing {
             log.error("{} Constructor.newInstance({},{},{}) failed",csts,"小王",20,true);
         }
     }
-    
+
     @Test
     public void classCheckTest() {
         //Arrays.asList()得到的是一个特殊的ArrayList,java.util.Arrays.ArrayList
@@ -204,13 +248,13 @@ public class Testing {
         }
         if(cls == null) return;
         if(cls.isInstance(list)) log.info("Class<ArrayList>.isInstance is list is right!");
-        
+
         Coder coder = new Coder();
         coder.setName("王二");
         Person p = toType(coder, Person.class);
         log.info("{} Dynamic cast to {} !",coder,p);
     }
-    
+
     @Test
     public void classJudgeTest() {
         List<String> list = Arrays.asList("1");
@@ -232,29 +276,29 @@ public class Testing {
         //是否是本地类;本地类定义在方法内,不是匿名类
         log.info("cls is LocalClass {}",cls.isLocalClass());
     }
-    
+
     /**
      * java.lang.reflect.Array
      * <li> 数组的反射
-     * 
+     *
      */
     @Test
     public void arrayTest() {
         String[] arr = new String[] {};
         log.info("String[] componentType: {}",arr.getClass().getComponentType());
-        
+
         arr = (String[]) Array.newInstance(String.class, 10);
         arr[0] = "test";
         log.info("Arr[0] = {}",arr[0]);
-        
+
         String[][] twoDimArr = (String[][]) Array.newInstance(String.class, 2, 10);
         twoDimArr[0][0] = "test";
         log.info("Arr[0][0] = {}",twoDimArr[0][0]);
         Array.set(arr, 1, "java.lang.reflect.Array.set()");
-        log.info("Array.get(1) = {}",(String) Array.get(arr, 1));
+        log.info("Array.get(1) = {}",Array.get(arr, 1));
         log.info("Array.getLength = {}",Array.getLength(arr));
     }
-    
+
     /**
      * <li> 枚举
      */
@@ -264,8 +308,8 @@ public class Testing {
         log.info("Enum.Class.getEnumConstants: {}",
             Stream.of(es).map(e->e.toString()).collect(Collectors.toList()));
     }
-    
-    private <T> T toType(Object obj, Class<T> cls) { 
+
+    private <T> T toType(Object obj, Class<T> cls) {
         return cls.cast(obj);
     }
 }

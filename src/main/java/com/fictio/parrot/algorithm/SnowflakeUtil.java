@@ -220,6 +220,12 @@ class SnowflakeA {
 @Slf4j
 public class SnowflakeUtil {
 
+    private SnowflakeA snowflakeA = new SnowflakeA();
+
+    public Long nextId() {
+        return snowflakeA.nextId();
+    }
+
     @Test
     public void test() {
         SnowflakeA a = new SnowflakeA();

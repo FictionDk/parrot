@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -55,6 +56,10 @@ public class CollectionTest {
 
     @Test
     public void sortTest() {
+        Stream.iterate(0, i->i+1).limit(stus.size()).forEach(index->{
+            log.debug("Stus[{}] = {}", index, stus.get(index));
+        });
+
         if(stus == null || stus.isEmpty()) return;
         stus = stus.stream().sorted(Comparator.comparing(Student::getBirthday).thenComparing(Student::getSex))
                 .collect(Collectors.toList());
