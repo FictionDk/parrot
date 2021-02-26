@@ -39,12 +39,15 @@
 1. 场景需求
     - [简单协作示例](WaitAndNotifyDemo.java)
     - [生产/消费者模式](ProducerAndConsumerDemo.java)
-    - 同时开始.如仿真程序,要求多线程同时开始
-    - 等待结束, 主从协作,主线程等待所有子任务完成再结束
-    - 异步结果, 主从协作,异步返回Future对象,并通过该对象后续获得最终结果
-    - 集合点, 如迭代计算中, 各线程在结合点交换和汇总,再进行下一次迭代
+    - [同时开始.如仿真程序,要求多线程同时开始](WaitWithLatchDemo.java)
+    - [等待结束, 主从协作,主线程等待所有子任务完成再结束](WaitWithLatchDemo.java)
+    - [异步结果](FeatureCallDemo.java), 主从协作,异步返回Future对象,并通过该对象后续获得最终结果
+    - [集合点, 如迭代计算中, 各线程在结合点交换和汇总,再进行下一次迭代](AssemblePointDemo.java)
 2. 阻塞队列
     - 接口BlockingQueue,BlockingDeque;
     - 基于数组的实现: ArrayBlockingQueue;
     - 基于链表的实现: LinkedBlocking/LinkedBlockingDeque
     - 基于堆的实现: PriorityBlockingQueue
+
+## 线程中断
+1. 机制: 实例方法: isInterrupted(),interrupt(); 静态方法: interrupted(),操作当前线程
