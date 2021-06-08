@@ -1,4 +1,4 @@
-# 逻辑编程
+# 逻辑编程-15章线程
 
 ## [线程概念](BaseThreadDemo.java)
 
@@ -50,4 +50,13 @@
     - 基于堆的实现: PriorityBlockingQueue
 
 ## 线程中断
-1. 机制: 实例方法: isInterrupted(),interrupt(); 静态方法: interrupted(),操作当前线程
+1. 机制: 实例方法: isInterrupted(),interrupt(); 静态方法: interrupted(),操作当前线程; 设置标志位
+2. 状态
+    - RUNNABLE, 调用interrupt设置线程中断标志位
+    - WAITING/TIME_WAITING, 线程调用join/wait/sleep进入该状态,调用interrupt抛出InterruptedException
+    - BLOCkED, 线程在等锁过程中,调用interrupt设置线程中断标志位,不会真正中断
+    - NEW/TERMINATE, 线程未启动或已结束,调用interrupt没有任何效果
+3. 有效取消/关闭线程,使用并发库提供的代码:
+    - Future: cancle(boolean flag);
+    - ExecutorService: shutdown(); shutdownNow();
+
