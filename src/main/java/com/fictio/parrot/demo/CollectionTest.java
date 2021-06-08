@@ -2,6 +2,7 @@ package com.fictio.parrot.demo;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -134,6 +135,8 @@ public class CollectionTest {
     @Test
     public void optionalTest() {
         List<Student> test = stus.stream().filter(val->val.getName().equals("大小")).collect(Collectors.toList());
+        List<String> names = Optional.ofNullable(test).map(l->l.stream().map(Student::getName).collect(Collectors.toList())).orElse(Collections.emptyList());
+        log.debug("names={}",names);
         Student daxia = Optional.ofNullable(test).orElse(new ArrayList<>()).stream().
                 filter(val->val.getBirthday()!=null).findAny().orElse(null);
         log.debug("daxia1 = {}",daxia);
