@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.Test;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Test;
 
 /**
  * <p> 贪心算法
