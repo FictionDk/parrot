@@ -1,0 +1,11 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:alad="http://www.stpass.com/aladdin">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <alad:getDonMappingWithBloodGroupBatch>
+            <arg0>
+                REPLACE
+            </arg0>
+        </alad:getDonMappingWithBloodGroupBatch>
+    </soapenv:Body>
+</soapenv:Envelope>

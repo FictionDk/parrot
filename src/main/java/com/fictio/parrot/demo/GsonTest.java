@@ -4,6 +4,7 @@ package com.fictio.parrot.demo;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gson.GsonBuilder;
 import org.junit.Test;
 
 import com.google.gson.Gson;
@@ -45,12 +46,13 @@ public class GsonTest {
         msg.setJson("100001025");
         msg.setDept("A107");
         String dataJson = new Gson().toJson(msg);
-        log.debug("{}",dataJson);
+        log.debug("1. {}",dataJson);
+        GsonBuilder gb = new GsonBuilder().serializeNulls();
+        log.debug("2. {}",gb.create().toJson(msg));
         JsonObject jo = new Gson().fromJson(dataJson, JsonObject.class);
-        log.debug("{}",jo);
+        log.debug("3. {}",jo);
         log.debug("{}",jo.get("dept").isJsonNull());
         log.debug("{}", jo.get("dept").getAsLong());
     }
-
 
 }

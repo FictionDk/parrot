@@ -1,12 +1,6 @@
 package com.fictio.parrot.demo;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -132,6 +126,12 @@ public class LocalTests {
         System.out.println(lines.size());
         Set<Label> labels = buildLabels(lines);
         System.out.println(labels.size());
-        writeFile("E:\\download\\0514.sql",labels);
+        writeFile("E:\\download\\labels.sql",labels);
+    }
+
+    @Test
+    public void readOnlyTest(){
+        File file = new File("E:\\resouces\\Nextcloud\\智慧浆云\\智能制造\\TEMP\\rows.txt");
+        file.setReadOnly();
     }
 }
