@@ -1,7 +1,12 @@
 package com.fictio.parrot.demo;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 
@@ -24,6 +29,14 @@ public class StringBuilderDemo {
     }
 
     @Test
+    public void strTest(){
+        List<String> bags = Arrays.asList("020242152061345D6437000","020242152060345D6437000","020242152069545D6437000");
+        bags = bags.stream().map(s->s = String.format("%s00%s", s.substring(0, 13), s.substring(15, 23))).collect(Collectors.toList());
+        for (String bag : bags) // 使用for(...)无法修改容器内字符引用
+            log.debug("-> {}",bag);
+    }
+
+    @Test
     public void test() {
 
         Set<String> demo = new HashSet<>();
@@ -39,6 +52,12 @@ public class StringBuilderDemo {
         log.debug("{}",Long.parseLong(uid.replace("u.", "")));
 
         System.out.println(3%3);
+
+        System.out.println(2=="test;tt".split(";").length);
+        LocalDateTime createTime = LocalDateTime.parse("2021-12-07T15:46:07.325", DateTimeFormatter.ISO_DATE_TIME);
+        LocalDateTime expTime = createTime.plusMinutes(120);
+        Boolean isExp = expTime.isAfter(LocalDateTime.now());
+        log.debug("{} is after {} = {}",expTime,LocalDateTime.now(),isExp);
     }
 
 }
