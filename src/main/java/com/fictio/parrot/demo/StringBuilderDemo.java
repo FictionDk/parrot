@@ -29,6 +29,13 @@ public class StringBuilderDemo {
     }
 
     @Test
+    public void intToStrTest(){
+        Float f = 200f;
+        String str = String.valueOf(f);
+        System.out.println(str);
+    }
+
+    @Test
     public void strTest(){
         List<String> bags = Arrays.asList("020242152061345D6437000","020242152060345D6437000","020242152069545D6437000");
         bags = bags.stream().map(s->s = String.format("%s00%s", s.substring(0, 13), s.substring(15, 23))).collect(Collectors.toList());
