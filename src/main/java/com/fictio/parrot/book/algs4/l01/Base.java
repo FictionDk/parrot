@@ -20,12 +20,12 @@ public class Base {
     }
 
     private int rank(int key, int[] arr, int lo, int hi){
-        int mid = lo + (hi - lo) / 2;
-        if(arr[mid] == key) return mid;
-        if(lo >= hi) return -1;
+        int mid = lo + (hi - lo) / 2;  // 找中
+        if(arr[mid] == key) return mid;  // 如果刚好中间,返回
+        if(lo >= hi) return -1;  // 如果头大于尾,结束返回(边界处理)
         log.debug("lo={},hi={},mid={}",lo, hi, mid);
-        if(key < arr[mid]) return rank(key, arr, lo, mid);
-        else if(key > arr[mid]) return rank(key, arr, mid + 1, hi);
+        if(key < arr[mid]) return rank(key, arr, lo, mid);  // 如果在中的左边
+        else if(key > arr[mid]) return rank(key, arr, mid + 1, hi);  // 如果在右边
         else return mid;
     }
 }

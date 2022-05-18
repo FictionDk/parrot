@@ -18,4 +18,4 @@
 logs/
 **/generator.xml
 *.hprof
-
+T0*.java

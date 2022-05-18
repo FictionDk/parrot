@@ -1,13 +1,9 @@
 package com.fictio.parrot.demo;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -57,6 +53,11 @@ public class CollectionTest {
 
     @Test
     public void sortTest() {
+        Vector<Student> stuVec = new Vector<>();
+        stuVec.add(stus.get(2));
+        stus = Collections.synchronizedList(stus);
+        new CopyOnWriteArrayList<>(stus);
+
         Stream.iterate(0, i->i+1).limit(stus.size()).forEach(index->{
             log.debug("Stus[{}] = {}", index, stus.get(index));
         });
@@ -129,6 +130,16 @@ public class CollectionTest {
         log.info("51={}",Sex.FEMALE.equals(stu.getSex()) || Sex.MALE.equals(stu.getSex()));
         log.info("6.Match result = {}",stus.stream().allMatch(val->(Sex.FEMALE.equals(val.getSex())
                 || Sex.MALE.equals(val.getSex()))));
+    }
+
+    @Test
+    public void removeTests(){
+        Set<String> col1 = new HashSet<>(Arrays.asList("1","3","5"));
+        Set<String> col2 = new HashSet<>(Arrays.asList("1","2","3","4","5"));
+        Set<String> col3 = new HashSet<>(Arrays.asList("1","7","8","9"));
+        log.info("col1 remove result = {},col1={}",col1.removeAll(col2), col1);
+        log.info("col3 remove result = {},col3={}",col3.removeAll(col2), col3);
+        log.info("col2={}",col2);
     }
 
 
