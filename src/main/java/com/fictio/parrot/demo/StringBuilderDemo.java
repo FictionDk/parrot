@@ -38,9 +38,12 @@ public class StringBuilderDemo {
     @Test
     public void strTest(){
         List<String> bags = Arrays.asList("020242152061345D6437000","020242152060345D6437000","020242152069545D6437000");
+        log.debug("size={}",bags.size());
+        log.debug("len={}",bags.subList(0, bags.size()-1));
         bags = bags.stream().map(s->s = String.format("%s00%s", s.substring(0, 13), s.substring(15, 23))).collect(Collectors.toList());
         for (String bag : bags) // 使用for(...)无法修改容器内字符引用
             log.debug("-> {}",bag);
+        System.out.printf("%s, %d%n", "test", 18);
     }
 
     @Test
