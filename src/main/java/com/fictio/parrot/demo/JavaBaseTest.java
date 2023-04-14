@@ -10,22 +10,23 @@ import org.junit.Test;
 
 import com.google.common.base.Joiner;
 
-class Base {
-    String testName;
-    private String baseName = "base";
-    public void callName () {
-        System.out.println(baseName);
-    }
-    public Base () {callName();}
-    static class Sub extends Base {
-        private String baseName = "sub";
-        public void className() {
+@SuppressWarnings("all")
+public class JavaBaseTest {
+    static class Base {
+        String testName;
+        private String baseName = "base";
+        public void callName () {
             System.out.println(baseName);
         }
+        public Base () {callName();}
+        static class Sub extends Base {
+            private String baseName = "sub";
+            public void className() {
+                System.out.println(baseName);
+            }
+        }
     }
-}
 
-public class JavaBaseTest {
 
     private final LocalDate NOW = LocalDate.now();
 

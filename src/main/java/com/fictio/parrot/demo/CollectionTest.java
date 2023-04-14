@@ -9,34 +9,37 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.fictio.parrot.demo.Student.Sex;
+import com.fictio.parrot.demo.CollectionTest.Student.Sex;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-@Data
-class Student {
-    public enum Sex  {
-        MALE,FEMALE
-    }
-    public Student(Integer id,String name,Sex sex,LocalDate birth) {
-        this.id = id;
-        this.name = name;
-        this.sex = sex;
-        this.birthday = birth;
-    }
-    Integer id;
-    String name;
-    Sex sex;
-    LocalDate birthday;
-    Integer grade;
-}
-
+@SuppressWarnings("all")
 @Slf4j
 public class CollectionTest {
+
+    @Setter
+    @Getter
+    static class Student {
+        public enum Sex  {
+            MALE,FEMALE
+        }
+        public Student(Integer id,String name,Sex sex,LocalDate birth) {
+            this.id = id;
+            this.name = name;
+            this.sex = sex;
+            this.birthday = birth;
+        }
+        Integer id;
+        String name;
+        Sex sex;
+        LocalDate birthday;
+        Integer grade;
+    }
 
     private List<Student> stus;
 

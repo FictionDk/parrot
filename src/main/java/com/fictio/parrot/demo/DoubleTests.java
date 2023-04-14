@@ -10,7 +10,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import lombok.extern.slf4j.Slf4j;
+import com.fictio.parrot.demo.CollectionTest.Student;
 
+@SuppressWarnings("all")
 @Slf4j
 public class DoubleTests {
     private List<Student> stus;

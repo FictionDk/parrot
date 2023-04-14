@@ -13,16 +13,14 @@ import com.google.gson.JsonObject;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-@Data
-class MsgData {
-    private String entity;
-    private String json;
-    private String dept;
-}
-
 @Slf4j
 public class GsonTest {
-
+    @Data
+    static class MsgData {
+        private String entity;
+        private String json;
+        private String dept;
+    }
     @SuppressWarnings("unchecked")
     @Test
     public void test() {

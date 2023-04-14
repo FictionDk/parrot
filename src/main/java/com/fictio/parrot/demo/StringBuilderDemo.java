@@ -2,10 +2,7 @@ package com.fictio.parrot.demo;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
@@ -56,6 +53,7 @@ public class StringBuilderDemo {
 
         String r = setToString(demo);
         System.out.println(r);
+        System.out.println(String.join(",",demo));
 
         String uid = "u.24";
         System.out.println(uid.startsWith("u."));
@@ -68,6 +66,12 @@ public class StringBuilderDemo {
         LocalDateTime expTime = createTime.plusMinutes(120);
         Boolean isExp = expTime.isAfter(LocalDateTime.now());
         log.debug("{} is after {} = {}",expTime,LocalDateTime.now(),isExp);
+
+        Map<String, Object> map = new HashMap<>();
+        String name = (String) map.getOrDefault("staff",null);
+        System.out.println(name);
+        System.out.println(name.toString());
+        System.out.println(String.valueOf(name).toString());
     }
 
 }

@@ -5,12 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 class Parcel {
-	class Contents {
-		private int i = 11;
-		public int value() {return i;}
+	static class Contents {
+		public int value() {return 11;}
 	}
-	class Destination {
-		private String label;
+	static class Destination {
+		private final String label;
 		public Destination(String whereTo) {
 			label = whereTo;
 		}
@@ -33,12 +32,12 @@ class Parcel {
  * 创建内部类练习
  */
 class Outer {
-	private String outerValue;
+	private final String outerValue;
 	public Outer () {
 		this.outerValue = "Outer";
 	}
 	class Inner {
-		private int value;
+		private final int value;
 		Inner(int v) {
 			this.value = v;
 		}
@@ -60,7 +59,7 @@ interface Selector {
 }
 
 class SeqItem {
-	private int value;
+	private final int value;
 	public SeqItem(int v) {
 		this.value = v;
 	}
@@ -70,7 +69,7 @@ class SeqItem {
 }
 
 class Sequence {
-	private Object[] items;
+	private final Object[] items;
 	private int next = 0;
 	public Sequence (int size) {
 		items = new Object[size];
@@ -128,6 +127,7 @@ class DotThis {
 
 
 
+@SuppressWarnings("all")
 @Slf4j
 public class InnerClassDemo01 {
 	

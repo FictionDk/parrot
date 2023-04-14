@@ -5,20 +5,21 @@ import org.junit.Test;
 
 import lombok.extern.slf4j.Slf4j;
 
-class ListNode {
-    int val;
-    ListNode next;
-    ListNode(int x){val = x;}
-    @Override
-    public String toString() {
-        return "ListNode [val=" + val + ", next=" + next + "]";
-    }
-}
 
-
+@SuppressWarnings("all")
 @Slf4j
 public class LeetCode02 {
-    
+
+    static class ListNode {
+        int val;
+        ListNode next;
+        ListNode(int x){val = x;}
+        @Override
+        public String toString() {
+            return "ListNode [val=" + val + ", next=" + next + "]";
+        }
+    }
+
     private ListNode addNode(ListNode ld, int val) {
         ListNode newLd = new ListNode(val);
         if(ld != null) 
@@ -46,10 +47,10 @@ public class LeetCode02 {
      * Input: (2 -> 4 -> 3) + (5 -> 6 -> 4)
      * Output: 7 -> 0 -> 8
      * Explanation: 342 + 465 = 807.
-     * 
+     *
      * [3, 4, 2]
      * [4, 6, 5]
-     * 
+     *
      * [9]
      * [1,9,9,9,9,9,9,9]
      * 
@@ -98,7 +99,7 @@ public class LeetCode02 {
         BigInteger result = BigInteger.valueOf(0);
         BigInteger count = BigInteger.valueOf(1);
         while(ld != null) {
-            result = result.add(BigInteger.valueOf(Long.valueOf(String.valueOf(ld.val)))
+            result = result.add(BigInteger.valueOf(Long.parseLong(String.valueOf(ld.val)))
                     .multiply(count));
             ld = ld.next;
             count = count.multiply(BigInteger.valueOf(10L));
